@@ -26,8 +26,14 @@ a { color:#f5c400; text-decoration:none; font-size:18px; }
 <header>
   <img src="logo.png" alt="Night Delivery Małdyty"
     style="max-width:180px; width:100%; height:auto; margin-bottom:10px;">
+  <div class="lang-switch">
+<button onclick="setLang('pl')">PL</button>
+<button onclick="setLang('en')">EN</button>
+<button onclick="setLang('ua')">UA</button>
+</div>
 <h1>Night Delivery Małdyty</h1>
 <p>Dostawa & przewóz 24/7</p>
+  <a href="tel:+48512956568" class="phone">📞 +48 512 956 568</a>
 </header>
 
 <section>
@@ -140,10 +146,31 @@ return;
 document.getElementById('result').innerText = 'Cena: ' + price.toFixed(2) + ' zł';
 document.getElementById('timeInfo').innerText = night ? 'Taryfa nocna' : 'Taryfa dzienna';
 }
+  const translations = {
+pl: {
+title: "Night Delivery Małdyty",
+subtitle: "Dostawa & przewóz 24/7"
+},
+en: {
+title: "Night Delivery Małdyty",
+subtitle: "Delivery & transport 24/7"
+},
+ua: {
+title: "Night Delivery Małdyty",
+subtitle: "Доставка та перевезення 24/7"
+}
+};
+
+function setLang(lang) {
+document.querySelector("h1").innerText = translations[lang].title;
+document.querySelector("header p").innerText = translations[lang].subtitle;
+}
+  setLang('pl');
 </script>
 
 </body>
 </html>
+
 
 
 
