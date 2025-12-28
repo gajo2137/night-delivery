@@ -1,1 +1,147 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Night Delivery Małdyty</title>
+<meta name="theme-color" content="#000000" />
+
+<style>
+body { margin:0; font-family: Arial, sans-serif; background:#000; color:#fff; }
+header { background:#111; padding:20px; text-align:center; }
+h1 { color:#f5c400; margin:0; }
+section { padding:20px; }
+label { display:block; margin-top:15px; font-size:14px; }
+input, select, textarea, button { width:100%; padding:12px; margin-top:5px; border-radius:8px; border:none; font-size:16px; }
+textarea { resize: vertical; }
+button { background:#f5c400; font-weight:bold; margin-top:20px; }
+.price { font-size:26px; margin-top:20px; color:#f5c400; text-align:center; }
+footer { text-align:center; padding:15px; background:#111; }
+a { color:#f5c400; text-decoration:none; font-size:18px; }
+.info { text-align:center; font-size:13px; opacity:0.8; margin-top:10px; }
+</style>
+</head>
+<body>
+
+<header>
+<h1>Night Delivery Małdyty</h1>
+<p>Dostawa & przewóz 24/7</p>
+</header>
+
+<section>
+<label>Rodzaj usługi</label>
+<select id="type">
+<option value="delivery">Dostawa (jedzenie / zakupy)</option>
+<option value="ride">Przewóz osoby</option>
+</select>
+
+<label>Dystans (km)</label>
+<input type="number" id="km" placeholder="np. 12" />
+<button type="button" onclick="getGPS()">📍 Oblicz km z GPS (od Małdyt)</button>
+<div class="info">GPS liczy orientacyjny dystans od centrum Małdyt</div>
+
+<label>Adres / opis zamówienia</label>
+<textarea id="note" placeholder="Np. adres odbioru, co kupić, itp."></textarea>
+
+<button onclick="calculate()">Oblicz cenę</button>
+<button onclick="sendOrder()">📩 Zamów (SMS / WhatsApp)</button>
+
+<div class="price" id="result"></div>
+<div class="info" id="timeInfo"></div>
+</section>
+
+<footer>
+<a href="tel:512956789">📞 Zadzwoń: 512 956 789</a>
+<div class="info">Godziny nocne 22:00–6:00 (droższe stawki)</div>
+</footer>
+
+<script>
+const MALDYTY = { lat: 53.9586, lon: 19.7406 };
+
+function getGPS() {
+if (!navigator.geolocation) {
+alert('GPS niedostępny');
+return;
+}
+
+navigator.geolocation.getCurrentPosition(pos => {
+const lat = pos.coords.latitude;
+const lon = pos.coords.longitude;
+const km = distanceKm(MALDYTY.lat, MALDYTY.lon, lat, lon);
+document.getElementById('km').value = km.toFixed(1);
+}, () => alert('Nie udało się pobrać lokalizacji'));
+}
+
+function distanceKm(lat1, lon1, lat2, lon2) {
+const R = 6371;
+const dLat = (lat2 - lat1) * Math.PI / 180;
+const dLon = (lon2 - lon1) * Math.PI / 180;
+const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function sendOrder() {
+const km = document.getElementById('km').value;
+const type = document.getElementById('type').value;
+const note = document.getElementById('note').value;
+const price = document.getElementById('result').innerText;
+
+if (!km) {
+alert('Najpierw oblicz cenę');
+return;
+}
+
+const text = `Night Delivery Małdyty%0AUsługa: ${type === 'delivery' ? 'Dostawa' : 'Przewóz'}%0ADystans: ${km} km%0A${price}%0AUwagi: ${note}`;
+
+const phone = '512956789';
+
+if (/Android|iPhone/i.test(navigator.userAgent)) {
+window.open(`https://wa.me/48${phone}?text=${text}`, '_blank');
+} else {
+window.location.href = `sms:${phone}?body=${text}`;
+}
+}
+
+function calculate() {
+const km = Number(document.getElementById('km').value);
+const type = document.getElementById('type').value;
+const now = new Date();
+const hour = now.getHours();
+const night = (hour >= 22 || hour < 6);
+
+if (!km || km <= 0) {
+document.getElementById('result').innerText = 'Podaj dystans';
+return;
+}
+
+let price = 0;
+
+if (type === 'delivery') {
+if (night) {
+price = 19 + km * 1.6;
+} else {
+price = 15 + km * 1.4;
+}
+} else {
+if (night) {
+price = 8 + km * 2.8;
+} else {
+price = 6 + km * 2.5;
+}
+}
+
+if (km > 50) {
+document.getElementById('result').innerText = 'Maksymalny dystans to 50 km';
+return;
+}
+
+document.getElementById('result').innerText = 'Cena: ' + price.toFixed(2) + ' zł';
+document.getElementById('timeInfo').innerText = night ? 'Taryfa nocna' : 'Taryfa dzienna';
+}
+</script>
+
+</body>
+</html>
+
+
 
